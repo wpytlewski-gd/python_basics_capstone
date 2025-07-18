@@ -46,7 +46,6 @@ def read_from_path(path: Path) -> dict | None:
         logging.warning(f"File '{path}' was found but does not contain valid JSON.")
         return None
     except OSError as e:
-        # Catches other potential file system errors, like permission denied
         logging.error(f"OS error reading file '{path}': {e}")
         return None
 
@@ -79,9 +78,6 @@ def load_data_schema(input_str: str | None) -> dict | None:
 
     logging.error("Failed to load data schema. Input is not a valid path or a valid JSON string.")
     return None
-
-
-# --- File Handling Functions ---
 
 
 def handle_clear_path(save_path: Path, file_name: str) -> None:

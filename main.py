@@ -22,7 +22,6 @@ def setup_arguments() -> argparse.Namespace:
     try:
         with open(script_dir / "default.ini") as f:
             config.read_file(f)
-        # Convert config values to their correct types
         defaults = {
             "path_to_save_files": config.get("DEFAULT", "path_to_save_files", fallback=None),
             "file_count": config.getint("DEFAULT", "file_count", fallback=10),
@@ -90,7 +89,6 @@ def setup_arguments() -> argparse.Namespace:
     )
     parser.add_argument("-w", "--workers", type=int, help="Number of worker processes to use.")
 
-    # Set the defaults for all arguments from the loaded config.
     parser.set_defaults(**defaults)
 
     return parser.parse_args()
