@@ -22,58 +22,76 @@ def setup_arguments() -> argparse.Namespace:
     try:
         with open(script_dir / "default.ini") as f:
             config.read_file(f)
-    except FileNotFoundError:
-        logging.info("default.ini not found. Using hardcoded defaults and command-line arguments.")
-
-    defaults = config["DEFAULT"] if "DEFAULT" in config else {}
+        # Convert config values to their correct types
+        defaults = {
+            "path_to_save_files": config.get("DEFAULT", "path_to_save_files", fallback=None),
+            "file_count": config.getint("DEFAULT", "file_count", fallback=10),
+            "file_name": config.get("DEFAULT", "file_name", fallback="output"),
+            "prefix": config.get("DEFAULT", "prefix", fallback="count"),
+            "data_schema": config.get("DEFAULT", "data_schema", fallback=None),
+            "data_lines": config.getint("DEFAULT", "data_lines", fallback=1),
+            "clear_path": config.getboolean("DEFAULT", "clear_path", fallback=False),
+            "workers": config.getint("DEFAULT", "workers", fallback=1),
+        }
+        logging.info("Successfully loaded default values from default.ini")
+    except (FileNotFoundError, configparser.NoSectionError):
+        logging.warning("default.ini not found or is empty. Using hardcoded defaults.")
+        defaults = {
+            "path_to_save_files": "results",
+            "file_count": 10,
+            "file_name": "output",
+            "prefix": "count",
+            "data_schema": "{}",
+            "data_lines": 1,
+            "clear_path": False,
+            "workers": 1,
+        }
 
     parser = argparse.ArgumentParser(
-        prog="Data Generator", description="Generates mock data files based on a JSON schema.", add_help=True
+        prog="Data Generator",
+        description="Generates mock data files based on a JSON schema.",
+        add_help=True,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     parser.add_argument(
         "path_to_save_files",
         nargs="?",
-        default=defaults.get("path_to_save_files"),
-        help="Directory to save the generated files.",
+        type=str,
+        help="Directory to save the generated files. Optional.",
     )
     parser.add_argument(
         "-fc",
         "--file_count",
-        default=defaults.get("file_count", 10),
         type=int,
         help="Number of files to generate. If 0, prints to console.",
     )
     parser.add_argument(
         "-fn",
         "--file_name",
-        default=defaults.get("file_name", "output"),
         type=str,
         help="Base name for the output files.",
     )
     parser.add_argument(
         "-fp",
         "--prefix",
-        default=defaults.get("prefix", "count"),
         choices=["count", "random", "uuid"],
         help="Prefix for the output file names.",
     )
     parser.add_argument(
         "-ds",
         "--data_schema",
-        default=defaults.get("data_schema"),
         type=str,
         help="Data schema as a JSON string or a path to a .json file.",
     )
-    parser.add_argument(
-        "-dl", "--data_lines", default=defaults.get("data_lines", 1), type=int, help="Number of data lines per file."
-    )
+    parser.add_argument("-dl", "--data_lines", type=int, help="Number of data lines per file.")
     parser.add_argument(
         "-cp", "--clear_path", action="store_true", help="Clear the save path directory before generating new files."
     )
-    parser.add_argument(
-        "-w", "--workers", default=defaults.get("workers", 1), type=int, help="Number of worker processes to use."
-    )
+    parser.add_argument("-w", "--workers", type=int, help="Number of worker processes to use.")
+
+    # Set the defaults for all arguments from the loaded config.
+    parser.set_defaults(**defaults)
 
     return parser.parse_args()
 
