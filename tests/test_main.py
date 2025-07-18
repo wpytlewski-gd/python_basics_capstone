@@ -5,11 +5,9 @@ from unittest.mock import patch
 
 import pytest
 
-# Import from the 'main' module in the root directory
 import main as main_script
 
 
-# --- Fixture for Default Arguments ---
 @pytest.fixture
 def default_args(tmp_path):
     """A pytest fixture to provide a default, valid set of arguments."""
