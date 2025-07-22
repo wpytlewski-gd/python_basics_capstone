@@ -95,8 +95,6 @@ def setup_arguments() -> argparse.Namespace:
 
 
 def main(args: argparse.Namespace):
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S")
-
     # --- Argument Validation ---
     if args.file_count < 0:
         logging.critical("Error: file_count cannot be negative.")
@@ -161,5 +159,6 @@ def main(args: argparse.Namespace):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S")
     arguments = setup_arguments()
     main(arguments)
